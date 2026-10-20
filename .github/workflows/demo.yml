@@ -18,6 +18,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-file }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -32,6 +34,9 @@ jobs:
           path: |
             dist/
             package.json
+      - name: publish js filename
+        id: publish
+        run: find dist/assets/*.js -type f -execdir echo '::set-output name=script-file::{}' ','
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -44,3 +49,5 @@ jobs:
         run: ls 
       - name: Deploy
         run: echo "Deploying..."
+      - name: Output filename
+        run: 'echo "Script file: ${{ needs.build.outputs.script-file }}"'
